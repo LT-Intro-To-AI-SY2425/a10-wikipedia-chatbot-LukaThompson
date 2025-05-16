@@ -112,6 +112,44 @@ def get_birth_date(name: str) -> str:
     return match.group("birth")
 
 
+def get_population_size(country: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(country)))
+    pattern = r"(?:Population.*?)(?P<pop>\d{1,3}(?:,\d{3})+)"
+    error_text = (
+        "Page infobox has no information for population size"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("pop")
+
+
+def get_capital(capital_name: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(capital_name)))
+    pattern = r"(?:capital[^\w]*[:|]?[^\w]*)(?P<capital>[A-Za-z\s]+)"
+    error_text = (
+        "Page infobox has no information for the capital"
+    )
+    
+    match = get_match(infobox_text, pattern, error_text)
+    
+    capital = match.group("capital")
+
+    if "and largest city" in capital:
+        capital = capital.replace("and largest city", "").strip()
+
+    return capital
+
+
+def get_movie_gross(earnings: str) -> str:
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(earnings)))
+    pattern = r"(?:Box office|Gross).*?(?P<gross>\$\s?\d+(?:,\d{3})*(?:\.\d+)?(?: million| billion)?)"
+    error_text = (
+        "Page infobox has no earning information"
+    )
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group("gross")
+
 # below are a set of actions. Each takes a list argument and returns a list of answers
 # according to the action and the argument. It is important that each function returns a
 # list of the answer(s) and not just the answer itself.
@@ -141,6 +179,15 @@ def polar_radius(matches: List[str]) -> List[str]:
     return [get_polar_radius(matches[0])]
 
 
+def population_size(matches: List[str]) -> List[str]:
+    return [get_population_size(matches[0])]
+
+def capital(matches: List[str]) -> List[str]:
+    return [get_capital(matches[0])]
+
+def movie_gross(matches: List[str]) -> List[str]:
+    return [get_movie_gross(matches[0])]
+
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
     raise KeyboardInterrupt
@@ -156,6 +203,9 @@ Action = Callable[[List[str]], List[Any]]
 pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
+    ("what is the population of %".split(), population_size),
+    ("what is the capital of %".split(), capital),
+    ("how much money did % make".split(), movie_gross),
     (["bye"], bye_action),
 ]
 
@@ -184,7 +234,7 @@ def search_pa_list(src: List[str]) -> List[str]:
 def query_loop() -> None:
     """The simple query loop. The try/except structure is to catch Ctrl-C or Ctrl-D
     characters and exit gracefully"""
-    print("Welcome to the movie database!\n")
+    print("Welcome to the wikipedia database!\n")
     while True:
         try:
             print()
