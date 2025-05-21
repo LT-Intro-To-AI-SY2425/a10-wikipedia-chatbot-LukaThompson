@@ -132,7 +132,7 @@ def get_capital(capital_name: str) -> str:
     
     match = get_match(infobox_text, pattern, error_text)
     
-    capital = match.group("capital")
+    capital = match.group("capital") 
 
     if "and largest city" in capital:
         capital = capital.replace("and largest city", "").strip()
