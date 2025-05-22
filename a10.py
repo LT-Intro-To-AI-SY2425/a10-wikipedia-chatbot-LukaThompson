@@ -142,13 +142,14 @@ def get_capital(capital_name: str) -> str:
 
 def get_movie_gross(earnings: str) -> str:
     infobox_text = clean_text(get_first_infobox_text(get_page_html(earnings)))
-    pattern = r"(?:Box office|Gross).*?(?P<gross>\$\s?\d+(?:,\d{3})*(?:\.\d+)?(?: million| billion)?)"
-    error_text = (
-        "Page infobox has no earning information"
-    )
+    pattern = r"(?:Box office|Gross).*?(?P<gross>\$\s?\d+(?:,\d{3})*(?:\s?[-–]?\s?\d+(?:,\d{3})*)?(?:\.\d+)?(?: million| billion)?)"
+    
+    error_text = "Page infobox has no earning information"
     match = get_match(infobox_text, pattern, error_text)
 
     return match.group("gross")
+
+
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
 # according to the action and the argument. It is important that each function returns a
